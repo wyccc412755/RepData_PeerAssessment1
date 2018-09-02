@@ -17,9 +17,10 @@ mydata<-read.csv("activity.csv")
  
 ```{r 1 echo=TRUE}
 total_steps_day<-tapply(mydata$steps,mydata$date,sum,na.rm=TRUE)
-hist(total_steps_day)
 mean(total_steps_day)
 median(total_steps_day)
+par(mfrow=c(1,1))
+hist(total_steps_day,xlab = "toal number of steps each day", main = "Histogram of the total number of \n steps each day")
 ```
 The mean value is 9354.23, and the median is 10395.
 
@@ -28,7 +29,7 @@ The mean value is 9354.23, and the median is 10395.
 
 ```{r 2 echo=TRUE}
 time_serious_steps<-aggregate(mydata$steps,list(mydata$interval),mean,na.rm=TRUE)
- 
+par(mfrow=c(1,1)) 
 plot(time_serious_steps[,1],time_serious_steps[,2], type="l", xlab = "interval",ylab="mean steps")
 time_serious_steps[which.max(time_serious_steps[,2]),1]
 ```
@@ -43,7 +44,8 @@ mean_interval<-aggregate(mydata$steps,list(mydata$interval),mean,na.rm=TRUE)
 mydata_raplaceNA$steps[is.na(mydata$steps)]<-mean_interval[which(mydata$interval[is.na(mydata$steps)]==mean_interval[,1]),2]
 
 total_steps_day_noNA<-tapply(mydata_raplaceNA$steps,mydata_raplaceNA$date,sum,na.rm=TRUE)
-hist(total_steps_day_noNA)
+par(mfrow=c(1,1))
+hist(total_steps_day_noNA, xlab = "toal number of steps each day", main = "Histogram of the total number of \n steps each day (imputed missing values)")
 mean(total_steps_day_noNA)
 median(total_steps_day_noNA)
 ```
@@ -57,7 +59,8 @@ mydata_raplaceNA$status<- ifelse(weekdays(as.POSIXct(mydata_raplaceNA$date),abbr
 time_serious_steps_noNA<-aggregate(mydata_raplaceNA$steps,list(mydata_raplaceNA$interval,mydata_raplaceNA$status),mean, na.rm=TRUE)
 
  library(lattice)
-xyplot(x~Group.1|Group.2, data=time_serious_steps_noNA, type="l", layout=c(1,2),xlab = "NNumber of steps",ylab = "Interval")
+par(mfrow=c(1,1))
+xyplot(x~Group.1|Group.2, data=time_serious_steps_noNA, type="l", layout=c(1,2),ylab = "Number of steps",xlab = "Interval")
 
  
 ```
