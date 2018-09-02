@@ -1,25 +1,66 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "PA1_template"
+output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 ## Loading and preprocessing the data
-
-
+ 
+```{r loaddata echo=TRUE}
+mydata<-read.csv("activity.csv")
+```
 
 ## What is mean total number of steps taken per day?
-
+ 
+```{r 1 echo=TRUE}
+total_steps_day<-tapply(mydata$steps,mydata$date,sum,na.rm=TRUE)
+hist(total_steps_day)
+mean(total_steps_day)
+median(total_steps_day)
+```
+The mean value is 9354.23, and the median is 10395.
 
 
 ## What is the average daily activity pattern?
 
-
-
+```{r 2 echo=TRUE}
+time_serious_steps<-aggregate(mydata$steps,list(mydata$interval),mean,na.rm=TRUE)
+ 
+plot(time_serious_steps[,1],time_serious_steps[,2], type="l", xlab = "interval",ylab="mean steps")
+time_serious_steps[which.max(time_serious_steps[,2]),1]
+```
+The 835 interval contains the maximum number of steps.
 ## Imputing missing values
+```{r 3 echo=TRUE}
+sum(is.na(mydata$steps))
 
+# use the mean of that interval to repalce NA values
+mydata_raplaceNA<-mydata
+mean_interval<-aggregate(mydata$steps,list(mydata$interval),mean,na.rm=TRUE)
+mydata_raplaceNA$steps[is.na(mydata$steps)]<-mean_interval[which(mydata$interval[is.na(mydata$steps)]==mean_interval[,1]),2]
 
+total_steps_day_noNA<-tapply(mydata_raplaceNA$steps,mydata_raplaceNA$date,sum,na.rm=TRUE)
+hist(total_steps_day_noNA)
+mean(total_steps_day_noNA)
+median(total_steps_day_noNA)
+```
+The total number of missing values in the dataset is 2304. The new data without NA is called mydata_replaceNA.The mean and median values of the new data are different from those two values of the old data.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r 4 echo=TRUE}
+library(dplyr)
+mydata_raplaceNA$status<- ifelse(weekdays(as.POSIXct(mydata_raplaceNA$date),abbreviate = T)=="Sat"|weekdays(as.POSIXct(mydata_raplaceNA$date),abbreviate = T)=="Sun","weekend","weekday")
+
+time_serious_steps_noNA<-aggregate(mydata_raplaceNA$steps,list(mydata_raplaceNA$interval,mydata_raplaceNA$status),mean, na.rm=TRUE)
+
+ library(lattice)
+xyplot(x~Group.1|Group.2, data=time_serious_steps_noNA, type="l", layout=c(1,2),xlab = "NNumber of steps",ylab = "Interval")
+
+ 
+```
+
+
+ 
